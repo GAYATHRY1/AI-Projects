@@ -1,0 +1,276 @@
+{
+  "name": "Content Creation Workflow Initiation",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1IqSuzAQjktQQFJ1npbWOOEpHG1H6eIV2EGAhPKeIM_0",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Content Hub",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IqSuzAQjktQQFJ1npbWOOEpHG1H6eIV2EGAhPKeIM_0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IqSuzAQjktQQFJ1npbWOOEpHG1H6eIV2EGAhPKeIM_0/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "f73b51d1-cff3-49b6-a039-7549423d2f1f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "2vLBPTc5FLpAJkyw",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e70e5a47-b697-4c24-98cd-05ef52233404",
+              "name": "query",
+              "value": "={{ $json['Content Topic'] }}",
+              "type": "string"
+            },
+            {
+              "id": "25c2be22-0816-4e28-95ae-7d3219baf0b4",
+              "name": "Target Audience",
+              "value": "={{ $json['Target Audience'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "5fd95ef7-b87d-4a04-9902-4bcaf40b0ae3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  \"api_key\": \"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\",\n \"query\": \"How Data Cleaning Saves Hour - Discover how cleaning messy data improves accuracy and saves time using Python (Pandas), Excel.\",\n  \"search_depth\": \"basic\",\n  \"include_answer\": true,\n  \"topic\": \"general\",\n  \"include_raw_content\": true,\n  \"max_results\": 3\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        0
+      ],
+      "id": "bf99c388-8807-455b-bc54-18579ab8a8a2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "42b151c9-607c-4a9d-9d35-c86c16dcfce1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "include": "specifiedFields",
+        "fieldsToInclude": "title, raw_content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a616055c-969f-41fc-8dba-4f15302a132d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Article Content:\n{{ $json.data.toJsonString() }}\nTarget Audience:\n{{ $(\"Edit Fields\").item.json[\"Target Audience\"] }}\n\n\n",
+        "options": {
+          "systemMessage": "You are an expert LinkedIn content creator specializing in transforming incoming articles into highly engaging posts tailored to a specific target audience.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        240
+      ],
+      "id": "2751566f-2b4e-4d0c-b122-9e1549a81b08",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        432
+      ],
+      "id": "757654cc-459b-41de-a2a9-3b7457e3ba3b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AEEhN2TAmBVcH00B",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "##  Workflow Overview\n1. **Google Sheets Trigger Node**  \n   Inputs are provided via a Google Sheet. This node triggers the workflow based on updates or schedule.\n2. **Edit Fields Node**  \n   Pulls key data fields from the sheet—like content topic, target audience, and post details.\n3. **Search Internet Node**  \n   Uses Tavily or other research APIs to fetch current insights and context about the topic.\n4. **Split Out Node**  \n   Breaks down search results into smaller, structured segments for easier processing.\n5. **Aggregator Node**  \n   Combines segments into a unified format, creating a cohesive input for the AI model.\n6. **AI Agent: Google Gemini Flash2.0 **  \n   Generates content tailored to each social platform using system prompts and structured input.\n7. **Include a social media Platform like Linkedin, X, Blog, Medium**  \n   Here We include these social media platforms by providing their credentials.\n",
+        "height": 512,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        -32
+      ],
+      "typeVersion": 1,
+      "id": "b4ecd515-b12b-4ce2-b1b2-bd6daf2195c4",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {
+    "Google Sheets Trigger": [
+      {
+        "json": {
+          "Content Topic": "How Data Cleaning Saves Hour",
+          "Target Audience": "Beginner",
+          "Post Type": "Text Post",
+          "Value Hook": "Discover how cleaning messy data improves accuracy and saves time",
+          "Tools/Tech Used": "Python (Pandas), Excel",
+          "Keywords/ Hashtags": "#DataCleaning #PythonTips",
+          "Visual Needed": "Yes",
+          "Publish Date": "18-Jul-2025",
+          "Repurpose Idea": "Blog Article"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1f4b7fe-a018-4092-96ea-ce126fb0f0b0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5c67e1ebc3a2cd8ece30827c7748e392a66d5ed3e6ee6bd3308877aafbf2befc"
+  },
+  "id": "DbbAOtRlPPGII4f2",
+  "tags": []
+}
