@@ -52,4 +52,5 @@ Built using FastMCP, Claude Desktop, and insights from the Codebasics community.
 
 Special thanks to Codebasics for the inspiration, tutorials, and hands-on guidance that made this MCP project possible
 For Reference: https://www.youtube.com/watch?v=jLM6n4mdRuA&t=38s
+
 Github Link: https://github.com/codebasics/ai-agents/tree/main/2_mcp_leave_management
