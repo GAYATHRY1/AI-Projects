@@ -1,0 +1,11 @@
+{
+  "command": "C:\\Users\\39375\\AppData\\Roaming\\Python\\Python313\\Scripts\\uv.EXE",
+  "args": [
+    "run",
+    "--with",
+    "mcp[cli]",
+    "mcp",
+    "run",
+    "C:\\Users\\39375\\bookkeeping-mcp-server\\main.py"
+  ]
+}
