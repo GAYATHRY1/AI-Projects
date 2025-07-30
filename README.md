@@ -1,6 +1,6 @@
 ## AI Projects Overview
 
-📊 Bookkeeping MCP Server
+### 📊 Bookkeeping MCP Server
 Located in `Bookkeeping-MCP-Server/`
 Description: An AI-driven bookkeeping assistant built with MCP architecture, tailored for automating financial transactions, generating profit/loss summaries, and offering smart billing and tax insights for small businesses.
 
